@@ -5,9 +5,7 @@ import com.documents4j.api.IConverter
 import com.documents4j.job.LocalConverter
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import java.io.*
 import java.nio.file.Files
 
 class Docx2OZinOffice protected constructor() {
@@ -19,12 +17,12 @@ class Docx2OZinOffice protected constructor() {
 
     private val logger: Logger = LoggerFactory.getLogger("[Docx2OZinOffice]")
     private var inputPaths: List<String>? = null
-    private var jsonBytes: ByteArray? = null
+    private var jsonContents: String = ""
     private var outputDir: File? = null
 
     fun from(inputPath: String): Docx2OZinOffice {
-        this.inputPaths = null
-        this.jsonBytes = null
+        inputPaths = null
+        jsonContents = ""
 
         val inputDir = File(inputPath)
         if (!inputDir.exists() || !inputDir.isDirectory) {
@@ -38,15 +36,19 @@ class Docx2OZinOffice protected constructor() {
             return this
         }
 
-        var jsonBytes: ByteArray? = null
+        var jsonCont = ""
         try {
             FileInputStream(jsonFile).use { fis ->
-                jsonBytes = fis.readAllBytes()
+                InputStreamReader(fis, "UTF-8").use { reader ->
+                    BufferedReader(reader).use { bufferedReader ->
+                        jsonCont = bufferedReader.readText()
+                    }
+                }
             }
         } catch (e: Throwable) {
             e.printStackTrace()
         }
-        if (jsonBytes == null) {
+        if (jsonCont.isEmpty()) {
             logger.error("❌ Could not read convert.json file: ${jsonFile.absolutePath.replace("\\", "/")}")
             return this
         }
@@ -59,8 +61,8 @@ class Docx2OZinOffice protected constructor() {
         }
         logger.info("✅ ${docxPaths.size} docx file(s) found: ${inputDir.absolutePath.replace("\\", "/")}")
 
-        this.inputPaths = docxPaths.map { inputDir.absolutePath.replace("\\", "/") + "/" + it }
-        this.jsonBytes = jsonBytes
+        inputPaths = docxPaths.map { inputDir.absolutePath.replace("\\", "/") + "/" + it }
+        jsonContents = jsonCont
 
         return this
     }
@@ -84,7 +86,7 @@ class Docx2OZinOffice protected constructor() {
 
     fun clear(): Docx2OZinOffice {
         inputPaths = null
-        jsonBytes = null
+        jsonContents = ""
         outputDir = null
         return this
     }
@@ -94,7 +96,7 @@ class Docx2OZinOffice protected constructor() {
             logger.error("❌ No input path yet.")
             return this
         }
-        if (jsonBytes == null) {
+        if (jsonContents.isEmpty()) {
             logger.error("❌ No convert.json yet.")
             return this
         }
@@ -161,7 +163,7 @@ class Docx2OZinOffice protected constructor() {
     }
 
     private fun convert(converter: IConverter, inputFile: File): String {
-        if (inputPaths == null || jsonBytes == null || outputDir == null) {
+        if (inputPaths == null || jsonContents.isEmpty() || outputDir == null) {
             return ""
         }
         if (!inputFile.exists() || !inputFile.canRead()) {
@@ -172,7 +174,11 @@ class Docx2OZinOffice protected constructor() {
         val outputPath = outputDir?.absolutePath?.replace("\\", "/") + "/" + inputFile.name;
         try {
             FileOutputStream(jsonFile).use { fos ->
-                fos.write(jsonBytes)
+                OutputStreamWriter(fos, "UTF-8").use { writer ->
+                    BufferedWriter(writer).use { bufferedWriter ->
+                        bufferedWriter.write(jsonContents)
+                    }
+                }
             }
             FileInputStream(inputFile).use { inputStream ->
                 val outputFile = File(outputPath)
