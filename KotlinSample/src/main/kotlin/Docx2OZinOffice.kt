@@ -99,7 +99,7 @@ class Docx2OZinOffice protected constructor() {
             return this
         }
 
-        val tempDir = Files.createTempDirectory("docx2ozinoffice").toFile()
+        val tempDir = Files.createTempDirectory("docx2ozinoffice-").toFile()
         logger.info("✅ Temporary Directory: ${tempDir.absolutePath.replace("\\", "/")}")
 
         var converter: IConverter? = null
@@ -167,8 +167,13 @@ class Docx2OZinOffice protected constructor() {
         if (!inputFile.exists() || !inputFile.canRead()) {
             return ""
         }
+        val jsonPath = inputFile.absolutePath.replace(".docx", ".json")
+        val jsonFile = File(jsonPath)
         val outputPath = outputDir?.absolutePath?.replace("\\", "/") + "/" + inputFile.name;
         try {
+            FileOutputStream(jsonFile).use { fos ->
+                fos.write(jsonBytes)
+            }
             FileInputStream(inputFile).use { inputStream ->
                 val outputFile = File(outputPath)
                 FileOutputStream(outputFile).use { outputStream ->
@@ -178,6 +183,7 @@ class Docx2OZinOffice protected constructor() {
                         .execute()
                 }
             }
+            jsonFile.delete()
         } catch (e: Throwable) {
             e.printStackTrace()
             return ""
