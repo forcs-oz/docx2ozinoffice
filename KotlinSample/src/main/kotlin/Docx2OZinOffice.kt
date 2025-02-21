@@ -44,7 +44,7 @@ class Docx2OZinOffice protected constructor() {
             val jsonString = jsonFile.readText(Charsets.UTF_8)
             val listType = object : TypeToken<List<FormItem>>() {}.type
             jsonList = Gson().fromJson(jsonString, listType)
-            jsonList = jsonList.distinctBy { it.key }
+            jsonList = jsonList.filter { it.key.isNotBlank() }.distinctBy { it.key }
         } catch (e: Throwable) {
             e.printStackTrace()
         }
