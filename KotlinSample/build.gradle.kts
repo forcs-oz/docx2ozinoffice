@@ -1,3 +1,16 @@
+// <!> When you build jar with java 1.8
+//import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+//java {
+//    sourceCompatibility = JavaVersion.VERSION_1_8
+//    targetCompatibility = JavaVersion.VERSION_1_8
+//}
+//tasks.withType<KotlinCompile> {
+//    compilerOptions {
+//        jvmTarget.set(JvmTarget.JVM_1_8)
+//    }
+//}
+
 plugins {
     kotlin("jvm") version "2.0.0"
 }
@@ -19,4 +32,17 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    archiveBaseName.set("docx2ozinoffice")
+
+    manifest {
+        attributes["Main-Class"] = "MainKt"
+    }
+
+    val dependencies = configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }
+    from(files(dependencies))
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
