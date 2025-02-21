@@ -39,7 +39,7 @@ class Docx2OZinOffice protected constructor() {
         var jsonCont = ""
         try {
             FileInputStream(jsonFile).use { fis ->
-                InputStreamReader(fis, "UTF-8").use { reader ->
+                InputStreamReader(fis, Charsets.UTF_8).use { reader ->
                     BufferedReader(reader).use { bufferedReader ->
                         jsonCont = bufferedReader.readText()
                     }
@@ -146,18 +146,40 @@ class Docx2OZinOffice protected constructor() {
             logger.error("❌ VBScript was not found in the temporary directory")
             return false;
         }
-        var vbsBytes: ByteArray? = null
+        val vbsContentsFile = File("src/main/resources/word_convert.vbs");
+        if (!vbsContentsFile.exists() || !vbsFile.canRead() || !vbsFile.canWrite()) {
+            logger.error("❌ No VBScript contents")
+            return false;
+        }
         try {
-            FileInputStream(vbsFile).use { fis ->
-                vbsBytes = fis.readAllBytes()
+            // UTF-8 BOM (0xEF, 0xBB, 0xBF)
+//            val utf8Bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            // UTF-16 LE BOM (0xFF, 0xFE)
+            val utf16LeBom = byteArrayOf(0xFF.toByte(), 0xFE.toByte())
+            var vbsCont = ""
+            FileInputStream(vbsContentsFile).use { fis ->
+                InputStreamReader(fis, Charsets.UTF_8).use { reader ->
+                    BufferedReader(reader).use { bufferedReader ->
+                        vbsCont = bufferedReader.readText()
+                    }
+                }
+            }
+            vbsCont = vbsCont.replace("@{#JSONDATA#}@", jsonContents.replace("\"", "\"\""))
+            FileOutputStream(vbsFile).use { fos ->
+//                fos.write(utf8Bom)
+                fos.write(utf16LeBom)
+                OutputStreamWriter(fos, Charsets.UTF_16LE).use { writer ->
+                    BufferedWriter(writer).use { bufferedWriter ->
+                        bufferedWriter.write(vbsCont)
+                    }
+                }
             }
         } catch (e: Throwable) {
             e.printStackTrace()
-        }
-        if (vbsBytes == null) {
-            logger.error("❌ Could not read VBScript")
+            logger.error("❌ Could not prepare VBScript")
             return false
         }
+
         logger.info("✅ VBScript was prepared")
         return true;
     }
@@ -173,13 +195,6 @@ class Docx2OZinOffice protected constructor() {
         val jsonFile = File(jsonPath)
         val outputPath = outputDir?.absolutePath?.replace("\\", "/") + "/" + inputFile.name;
         try {
-            FileOutputStream(jsonFile).use { fos ->
-                OutputStreamWriter(fos, "UTF-8").use { writer ->
-                    BufferedWriter(writer).use { bufferedWriter ->
-                        bufferedWriter.write(jsonContents)
-                    }
-                }
-            }
             FileInputStream(inputFile).use { inputStream ->
                 val outputFile = File(outputPath)
                 FileOutputStream(outputFile).use { outputStream ->
