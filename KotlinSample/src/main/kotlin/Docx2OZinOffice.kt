@@ -54,7 +54,7 @@ class Docx2OZinOffice protected constructor() {
         }
         logger.info("✅ convert.json file was read successfully")
 
-        val docxPaths = inputDir.list().filter { it.endsWith(".docx") }
+        val docxPaths = inputDir.list().filter { it.endsWith(".docx") && !it.startsWith("~\$") }
         if (docxPaths.isEmpty()) {
             logger.error("❌ No docx file in the input path: ${inputDir.absolutePath.replace("\\", "/")}")
             return this
@@ -68,17 +68,17 @@ class Docx2OZinOffice protected constructor() {
     }
 
     fun to(outputPath: String): Docx2OZinOffice {
-        this.outputDir = null
+        outputDir = null
 
         try {
-            val outputDir = File(outputPath)
-            if (outputDir.exists()) {
-                outputDir.deleteRecursively()
+            val outDir = File(outputPath)
+            if (outDir.exists()) {
+                outDir.deleteRecursively()
             }
-            outputDir.mkdir()
-            this.outputDir = outputDir;
+            outDir.mkdir()
+            outputDir = outDir;
         } catch (e: Throwable) {
-            this.outputDir = null
+            outputDir = null
         }
 
         return this
@@ -152,8 +152,6 @@ class Docx2OZinOffice protected constructor() {
             return false;
         }
         try {
-            // UTF-8 BOM (0xEF, 0xBB, 0xBF)
-//            val utf8Bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
             // UTF-16 LE BOM (0xFF, 0xFE)
             val utf16LeBom = byteArrayOf(0xFF.toByte(), 0xFE.toByte())
             var vbsCont = ""
@@ -166,7 +164,6 @@ class Docx2OZinOffice protected constructor() {
             }
             vbsCont = vbsCont.replace("@{#JSONDATA#}@", jsonContents.replace("\"", "\"\""))
             FileOutputStream(vbsFile).use { fos ->
-//                fos.write(utf8Bom)
                 fos.write(utf16LeBom)
                 OutputStreamWriter(fos, Charsets.UTF_16LE).use { writer ->
                     BufferedWriter(writer).use { bufferedWriter ->
