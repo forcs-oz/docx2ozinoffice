@@ -3,10 +3,14 @@ package com.forcs.ozinoffice
 import com.documents4j.api.DocumentType
 import com.documents4j.api.IConverter
 import com.documents4j.job.LocalConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import java.io.*
 import java.nio.file.Files
+
+data class FormItem(val key: String, val formid: String)
 
 class Docx2OZinOffice protected constructor() {
     companion object {
@@ -17,12 +21,12 @@ class Docx2OZinOffice protected constructor() {
 
     private val logger: Logger = LoggerFactory.getLogger("[Docx2OZinOffice]")
     private var inputPaths: List<String>? = null
-    private var jsonContents: String = ""
+    private var formList: List<FormItem>? = null
     private var outputDir: File? = null
 
     fun from(inputPath: String): Docx2OZinOffice {
         inputPaths = null
-        jsonContents = ""
+        formList = null
 
         val inputDir = File(inputPath)
         if (!inputDir.exists() || !inputDir.isDirectory) {
@@ -35,20 +39,16 @@ class Docx2OZinOffice protected constructor() {
             logger.error("❌ No convert.json file: ${jsonFile.absolutePath.replace("\\", "/")}")
             return this
         }
-
-        var jsonCont = ""
+        var jsonList = listOf<FormItem>()
         try {
-            FileInputStream(jsonFile).use { fis ->
-                InputStreamReader(fis, Charsets.UTF_8).use { reader ->
-                    BufferedReader(reader).use { bufferedReader ->
-                        jsonCont = bufferedReader.readText()
-                    }
-                }
-            }
+            val jsonString = jsonFile.readText(Charsets.UTF_8)
+            val listType = object : TypeToken<List<FormItem>>() {}.type
+            jsonList = Gson().fromJson(jsonString, listType)
+            jsonList = jsonList.distinctBy { it.key }
         } catch (e: Throwable) {
             e.printStackTrace()
         }
-        if (jsonCont.isEmpty()) {
+        if (jsonList.isEmpty()) {
             logger.error("❌ Could not read convert.json file: ${jsonFile.absolutePath.replace("\\", "/")}")
             return this
         }
@@ -62,7 +62,7 @@ class Docx2OZinOffice protected constructor() {
         logger.info("✅ ${docxPaths.size} docx file(s) found: ${inputDir.absolutePath.replace("\\", "/")}")
 
         inputPaths = docxPaths.map { inputDir.absolutePath.replace("\\", "/") + "/" + it }
-        jsonContents = jsonCont
+        formList = jsonList
 
         return this
     }
@@ -86,7 +86,7 @@ class Docx2OZinOffice protected constructor() {
 
     fun clear(): Docx2OZinOffice {
         inputPaths = null
-        jsonContents = ""
+        formList = null
         outputDir = null
         return this
     }
@@ -96,7 +96,7 @@ class Docx2OZinOffice protected constructor() {
             logger.error("❌ No input path yet.")
             return this
         }
-        if (jsonContents.isEmpty()) {
+        if (formList == null) {
             logger.error("❌ No convert.json yet.")
             return this
         }
@@ -152,25 +152,20 @@ class Docx2OZinOffice protected constructor() {
             return false;
         }
         try {
-            // UTF-16 LE BOM (0xFF, 0xFE)
-            val utf16LeBom = byteArrayOf(0xFF.toByte(), 0xFE.toByte())
-            var vbsCont = ""
-            FileInputStream(vbsContentsFile).use { fis ->
-                InputStreamReader(fis, Charsets.UTF_8).use { reader ->
-                    BufferedReader(reader).use { bufferedReader ->
-                        vbsCont = bufferedReader.readText()
-                    }
+            var vbsCont = vbsContentsFile.readText(Charsets.UTF_8)
+            var addItemDictCode = ""
+            if (formList != null) {
+                formList!!.forEach { entry ->
+                    addItemDictCode += "\n"
+                    addItemDictCode += "\tSet itemDict = CreateObject(\"Scripting.Dictionary\")\n"
+                    addItemDictCode += "\titemDict.Add \"key\", \"${entry.key}\"\n"
+                    addItemDictCode += "\titemDict.Add \"formid\", \"${entry.formid}\"\n"
+                    addItemDictCode += "\tdict.Add \"${entry.key}\", itemDict\n"
                 }
+                addItemDictCode += "\n"
             }
-            vbsCont = vbsCont.replace("@{#JSONDATA#}@", jsonContents.replace("\"", "\"\""))
-            FileOutputStream(vbsFile).use { fos ->
-                fos.write(utf16LeBom)
-                OutputStreamWriter(fos, Charsets.UTF_16LE).use { writer ->
-                    BufferedWriter(writer).use { bufferedWriter ->
-                        bufferedWriter.write(vbsCont)
-                    }
-                }
-            }
+            vbsCont = vbsCont.replace("'@{#ADD_ITEMS#}@", addItemDictCode)
+            vbsFile.writeText("\uFEFF" + vbsCont, Charsets.UTF_16LE) // UTF-16 LE BOM
         } catch (e: Throwable) {
             e.printStackTrace()
             logger.error("❌ Could not prepare VBScript")
@@ -182,7 +177,7 @@ class Docx2OZinOffice protected constructor() {
     }
 
     private fun convert(converter: IConverter, inputFile: File): String {
-        if (inputPaths == null || jsonContents.isEmpty() || outputDir == null) {
+        if (inputPaths == null || formList == null || outputDir == null) {
             return ""
         }
         if (!inputFile.exists() || !inputFile.canRead()) {

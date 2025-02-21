@@ -1,62 +1,14 @@
 
 ' -- Functions -----------------------------------------------------------------
-Function ParseJSONArray(jsonText)
-	Dim dict, itemDict, itemKey, jsonItems, jsonItem, i
-
-	jsonText = Replace(jsonText, "[", "")
-	jsonText = Replace(jsonText, "]", "")
-	jsonItems = Split(jsonText, "},{")
-
+Function GetJSONDict()
+	Dim dict, itemDict
 	Set dict = CreateObject("Scripting.Dictionary")
 
-	For i = 0 To UBound(jsonItems)
-		jsonItem = "{" & Replace(jsonItems(i), "{", "") & "}"
-		Set itemDict = ParseJSON(jsonItem)
-		itemKey = itemDict("key")
-		If itemKey <> "" AND dict.Exists(itemKey) = False Then
-			dict.Add itemKey, itemDict
-		End If
-	Next
-	Set ParseJSONArray = dict
+'===== BEGIN WRITE JSON DATA =====
+'@{#ADD_ITEMS#}@
+'===== END WRITE JSON DATA =====
 
-End Function
-
-Function ParseJSON(jsonText)
-	Dim dict, pairs, pair, key, value, i
-
-	jsonText = Replace(jsonText, "{", "")
-	jsonText = Replace(jsonText, "}", "")
-	pairs = Split(jsonText, ",")
-
-	Set dict = CreateObject("Scripting.Dictionary")
-
-	Dim emptyKey
-	emptyKey = False
-	For i = 0 To UBound(pairs)
-		If emptyKey = True Then
-			emptyKey = False
-		Else
-			pair = Split(pairs(i), ":")
-			key = Trim(Replace(pair(0), """", ""))
-			value = Trim(Replace(pair(1), """", ""))
-			If key = "key" AND value = "" Then
-				emptyKey = True
-			Else
-				dict.Add key, value
-			End If
-		End If
-    Next
-
-    Set ParseJSON = dict
-End Function
-
-Function RemoveWhitespace(text)
-	text = Replace(text, vbCrLf, "")
-	text = Replace(text, vbCr, "")
-	text = Replace(text, vbLf, "")
-	text = Replace(text, vbTab, "")
-
-	RemoveWhitespace = text
+	Set GetJSONDict = dict
 End Function
 
 Function SortDictionaryKeys(d)
@@ -107,12 +59,10 @@ If fileSystemObject.FileExists(inputFile) Then
 	Set ActiveDocument = WA.ActiveDocument
 	Set Selection = WA.Selection
 	
-	Dim jsonData, cleanJson, sortedKeys
-	jsonData = "@{#JSONDATA#}@"
+	Dim sortedKeys
 	
 	On Error Resume Next
-	cleanJson = RemoveWhitespace(jsonData)
-	Set jsonDict = ParseJSONArray(cleanJson)
+	Set jsonDict = GetJSONDict()
 	sortedKeys = SortDictionaryKeys(jsonDict)
 
 	If Err.Number <> 0 Then

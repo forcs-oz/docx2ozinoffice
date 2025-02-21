@@ -28,6 +28,7 @@ dependencies {
     implementation("com.documents4j:documents4j-transformer-msoffice-word:1.1.13")
     implementation("org.slf4j:slf4j-api:2.0.0")  // SLF4J API
     implementation("org.slf4j:slf4j-simple:2.0.0") // SLF4J Simple Logger Implementation
+    implementation("com.google.code.gson:gson:2.10") // json parser
 }
 
 tasks.test {
@@ -38,7 +39,7 @@ tasks.jar {
     archiveBaseName.set("docx2ozinoffice")
 
     manifest {
-        attributes["Main-Class"] = "MainKt"
+        attributes["Main-Class"] = "com.forcs.ozinoffice.MainKt"
     }
 
     val dependencies = configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }

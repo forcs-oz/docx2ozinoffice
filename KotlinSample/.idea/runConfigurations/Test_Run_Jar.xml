@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Test Run Jar" type="JarApplication">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/docx2ozinoffice-1.0-SNAPSHOT.jar" />
+    <option name="PROGRAM_PARAMETERS" value="src/test/resources/input src/test/resources/output" />
+    <option name="WORKING_DIRECTORY" value="D:\TestProjects\docx2ozinoffice\KotlinSample" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2" />
+  </configuration>
+</component>
