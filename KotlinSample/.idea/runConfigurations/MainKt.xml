@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MainKt" type="JetRunConfigurationType" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="com.forcs.ozinoffice.MainKt" />
+    <module name="KotlinSample.main" />
+    <option name="PROGRAM_PARAMETERS" value="src/test/resources/input src/test/resources/output" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
