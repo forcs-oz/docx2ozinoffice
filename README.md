@@ -62,25 +62,31 @@ By editing `build.gradle.kts`, you can change the version name, file name, or th
 <output-path>/bar.docx
 ```
 
+テスト用リソースは`src/test/resources/input`で確認できます。
+
+테스트용 리소스는 `src/test/resources/input`에서 확인할 수 있습니다.
+
+The test resources are available at `src/test/resources/input`.
+
 ### 置き換えの設定 / 치환설정 / Replacement Settings
 
 ```javascript
 [
    {
-      "key": "@user_id@",     /* DOCXファイルに含まれる文字列の指定 */
-      "formid": "userid"      /* 指定の文字列が変換されたOZ-in-Officeコンポーネントの「formid」属性に与えられる値 */
+      "key": "@{Patient.ID}",    /* DOCXファイルに含まれる文字列の指定 */
+      "formid": "patientid"      /* 指定の文字列が変換されたOZ-in-Officeコンポーネントの「formid」属性に与えられる値 */
    },
    {
-      "key": "@user_addr@",   /* DOCX파일에 포함된 문자열의 지정 */
-      "formid": "useraddr"    /* 지정된 문자열이 변환된 OZ-in-Office 컴포넌트의「formid」속성에 할당되는 값 */
+      "key": "@{User.Addr}",     /* DOCX파일에 포함된 문자열의 지정 */
+      "formid": "useraddr"       /* 지정된 문자열이 변환된 OZ-in-Office 컴포넌트의「formid」속성에 할당되는 값 */
    },
    {
-      "key": "@user_name@",   /* Specifying the string included in the DOCX file */
-      "formid": "username"    /* The value assigned to the 「formid」 property of the converted OZ-in-Office component with the specified string */
+      "key": "@{User.Name}",     /* Specifying the string included in the DOCX file */
+      "formid": "username"       /* The value assigned to the 「formid」 property of the converted OZ-in-Office component with the specified string */
    },
    {
-      "key": "@患者_性別@",
-      "formid": "jptest"
+      "key": "@{患者_性別}",
+      "formid": "patientsex"
    }
 ]
 ```
