@@ -29,14 +29,20 @@ class Docx2OZinOffice protected constructor() {
         formList = null
 
         val inputDir = File(inputPath)
+        val inputDirAbsolutePath = inputDir.absolutePath.replace("\\", "/")
         if (!inputDir.exists() || !inputDir.isDirectory) {
-            logger.error("❌ No directory in the input path: ${inputDir.absolutePath.replace("\\", "/")}")
+            logger.error("❌ No directory in the input path: $inputDirAbsolutePath")
             return this
         }
 
-        val jsonFile = File(inputDir.absolutePath + "/convert.json")
+        val findResults = inputDir.list().filter{path -> path.endsWith(".json")};
+        if (findResults.isEmpty()){
+            logger.error("❌ No json file was found in the input directory")
+            return this;
+        }
+        val jsonFile = File(inputDir.absolutePath + "/" + findResults.get(0))
         if (!jsonFile.exists() || !jsonFile.canRead()) {
-            logger.error("❌ No convert.json file: ${jsonFile.absolutePath.replace("\\", "/")}")
+            logger.error("❌ No json file was found in the input directory")
             return this
         }
         var jsonList = listOf<FormItem>()
@@ -48,20 +54,21 @@ class Docx2OZinOffice protected constructor() {
         } catch (e: Throwable) {
             e.printStackTrace()
         }
+        val jsonFileAbsolutePath = jsonFile.absolutePath.replace("\\", "/")
         if (jsonList.isEmpty()) {
-            logger.error("❌ Could not read convert.json file: ${jsonFile.absolutePath.replace("\\", "/")}")
+            logger.error("❌ Could not read the json file: $jsonFileAbsolutePath")
             return this
         }
-        logger.info("✅ convert.json file was read successfully")
+        logger.info("✅ the json file was read successfully: $jsonFileAbsolutePath}")
 
         val docxPaths = inputDir.list().filter { it.endsWith(".docx") && !it.startsWith("~\$") }
         if (docxPaths.isEmpty()) {
-            logger.error("❌ No docx file in the input path: ${inputDir.absolutePath.replace("\\", "/")}")
+            logger.error("❌ No docx file in the input path: $inputDirAbsolutePath")
             return this
         }
-        logger.info("✅ ${docxPaths.size} docx file(s) found: ${inputDir.absolutePath.replace("\\", "/")}")
+        logger.info("✅ ${docxPaths.size} docx file(s) found: $inputDirAbsolutePath")
 
-        inputPaths = docxPaths.map { inputDir.absolutePath.replace("\\", "/") + "/" + it }
+        inputPaths = docxPaths.map { inputDirAbsolutePath + "/" + it }
         formList = jsonList
 
         return this

@@ -67,8 +67,8 @@ If fileSystemObject.FileExists(inputFile) Then
 
 	If Err.Number <> 0 Then
 		WD.Close 0
-		WA.Quit
-		'WScript.Quit -2
+		'WA.Quit
+		WScript.Quit -2
 	End If
 	On Error GoTo 0
 
