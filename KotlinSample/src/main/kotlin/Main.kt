@@ -6,7 +6,7 @@ fun main(args: Array<String>) {
         println("[Docx2OZinOffice] Usages: <input-dir> <output-dir>")
         println()
         println("Input Example:")
-        println("\t<input-dir>/convert.json")
+        println("\t<input-dir>/setting.json")
         println("\t<input-dir>/foo.docx")
         println("\t<input-dir>/bar.docx")
         println()

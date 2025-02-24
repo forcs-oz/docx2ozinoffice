@@ -14,6 +14,10 @@ data class FormItem(val key: String, val formid: String)
 
 class Docx2OZinOffice protected constructor() {
     companion object {
+        /**
+         * コンバーターの新しいインスタンスを生成します。
+         * 컨버터의 새로운 인스턴스를 생성합니다.
+         */
         fun get(): Docx2OZinOffice {
             return Docx2OZinOffice()
         }
@@ -24,6 +28,10 @@ class Docx2OZinOffice protected constructor() {
     private var formList: List<FormItem>? = null
     private var outputDir: File? = null
 
+    /**
+     * 指定ディレクトリ経路から置き換えの設定ファイル(JSON)と変換するドキュメントファイル(DOCX)を認識します。
+     * 지정 디렉토리 경로로부터 치환설정파일(JSON)과 변환할 문서파일(DOCX)을 인식합니다.
+     */
     fun from(inputPath: String): Docx2OZinOffice {
         inputPaths = null
         formList = null
@@ -34,6 +42,11 @@ class Docx2OZinOffice protected constructor() {
             logger.error("❌ No directory in the input path: $inputDirAbsolutePath")
             return this
         }
+
+        /**
+         * 指定ディレクトリ経路から置き換えの設定ファイル(JSON)を探して、置き換えの設定を読み込みます。
+         * 지정 디렉토리 경로로부터 치환설정파일(JSON)을 찾고, 치환설정을 읽어들입니다.
+         */
 
         val findResults = inputDir.list().filter{path -> path.endsWith(".json")};
         if (findResults.isEmpty()){
@@ -61,6 +74,11 @@ class Docx2OZinOffice protected constructor() {
         }
         logger.info("✅ the json file was read successfully: $jsonFileAbsolutePath}")
 
+        /**
+         * 指定ディレクトリ経路から変換するドキュメントファイル(DOCX)をリストアップします。
+         * 지정 디렉토리 경로로부터 변환할 문서파일(DOCX)을 리스트업합니다.
+         */
+
         val docxPaths = inputDir.list().filter { it.endsWith(".docx") && !it.startsWith("~\$") }
         if (docxPaths.isEmpty()) {
             logger.error("❌ No docx file in the input path: $inputDirAbsolutePath")
@@ -74,6 +92,10 @@ class Docx2OZinOffice protected constructor() {
         return this
     }
 
+    /**
+     * 指定ディレクトリ経路に変換済みのドキュメントファイル(DOCX)を書く準備をします。
+     * 지정 디렉토리 경로에 변환완료 문서파일(DOCX)을 쓸 준비를 합니다.
+     */
     fun to(outputPath: String): Docx2OZinOffice {
         outputDir = null
 
@@ -91,6 +113,10 @@ class Docx2OZinOffice protected constructor() {
         return this
     }
 
+    /**
+     * 設定を初期化します。
+     * 설정을 초기화합니다.
+     */
     fun clear(): Docx2OZinOffice {
         inputPaths = null
         formList = null
@@ -98,6 +124,10 @@ class Docx2OZinOffice protected constructor() {
         return this
     }
 
+    /**
+     * 設定どおりに変換作業を実行します。
+     * 설정대로 변환작업을 실행합니다.
+     */
     fun run(): Docx2OZinOffice {
         if (inputPaths == null) {
             logger.error("❌ No input path yet.")
@@ -142,6 +172,10 @@ class Docx2OZinOffice protected constructor() {
         return this
     }
 
+    /**
+     * 変換作業に用いられるビジュアルベーシックスクリプト(VBScript)を作成します。
+     * 변환작업에 사용되는 비쥬얼베이직스크립트(VBScript)를 작성합니다.
+     */
     private fun prepareVBScript(tempDir: File): Boolean {
         val findResults = tempDir.list().filter{path -> path.endsWith(".vbs")};
         if (findResults.isEmpty()){
@@ -158,6 +192,12 @@ class Docx2OZinOffice protected constructor() {
             logger.error("❌ No VBScript contents")
             return false;
         }
+
+        /**
+         * 読み込んだ置き換えの設定の内容をビジュアルベーシックスクリプト(VBScript)として記述します。
+         * 읽어들인 치환설정의 내용을 비쥬얼베이직스크립트(VBScript)로 기술합니다.
+         */
+
         try {
             var vbsCont = vbsContentsFile.readText(Charsets.UTF_8)
             var addItemDictCode = ""
@@ -183,6 +223,10 @@ class Docx2OZinOffice protected constructor() {
         return true;
     }
 
+    /**
+     * 一つのドキュメントファイル(DOCX)あたりの変換作業を実行します。
+     * 한개의 문서파일(DOCX)에 대한 변환작업을 실행합니다.
+     */
     private fun convert(converter: IConverter, inputFile: File): String {
         if (inputPaths == null || formList == null || outputDir == null) {
             return ""

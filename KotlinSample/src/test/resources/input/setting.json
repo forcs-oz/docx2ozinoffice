@@ -1,0 +1,18 @@
+[
+  {
+    "key": "@user_id@",
+    "formid": "userid"
+  },
+  {
+    "key": "@user_addr@",
+    "formid": "useraddr"
+  },
+  {
+    "key": "@user_name@",
+    "formid": "username"
+  },
+  {
+    "key": "@患者_性別@",
+    "formid": "jptest"
+  }
+]
