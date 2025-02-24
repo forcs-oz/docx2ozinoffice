@@ -1,0 +1,126 @@
+[
+  {
+    "key": "@{Patient.ID}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{System.SysDateAD3}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{User.SelectedDeptName}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{User.Name}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{Patient.Name}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{Patient.BirthdayAD2}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{User.Name}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{Patient.ID}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{Patient.Name}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{Patient.InHospitalDate}",
+    "formid": "testid"
+  },
+  {
+    "key": "@{Patient.BirthdayAD2}",
+    "formid": "testid"
+  },
+  {
+    "key": "",
+    "formid": "testid"
+  },
+  {
+    "key": "@HOSPITALDIRECTOR",
+    "formid": "doctor"
+  },
+  {
+    "key": "@PATIENTFORMALSECTIONNAME",
+    "formid": "pfsname1"
+  },
+  {
+    "key": "@PATIENTWARD",
+    "formid": "pward1"
+  },
+  {
+    "key": "@PATIENTROOM",
+    "formid": "proom1"
+  },
+  {
+    "key": "@PATIENTID",
+    "formid": "pid1"
+  },
+  {
+    "key": "@PATIENTBIRTH",
+    "formid": "pbirth1"
+  },
+  {
+    "key": "@SYSDATE",
+    "formid": "sdata1"
+  },
+  {
+    "key": "@USERNAME",
+    "formid": "uname1"
+  },
+  {
+    "key": "@HOSPITALATTACHED",
+    "formid": "hatth1"
+  },
+  {
+    "key": "@HOSPITALNAME",
+    "formid": "hname1"
+  },
+  {
+    "key": "@PATIENTNAME",
+    "formid": "pname1"
+  },
+  {
+    "key": "@USERNAME",
+    "formid": "uname1"
+  },
+  {
+    "key": "@USERSECTION",
+    "formid": "usection1"
+  },
+  {
+    "key": "@KENSADATE2",
+    "formid": "ksdate1"
+  },
+  {
+    "key": "@PATIENTNAMEKANA",
+    "formid": "pnkana2"
+  },
+  {
+    "key": "@PATIENTBIRTH4",
+    "formid": "pbirth2"
+  },
+  {
+    "key": "@PATIENTAGEYEAR",
+    "formid": "pyear1"
+  },
+  {
+    "key": "@SYSDAT3",
+    "formid": "sdat3"
+  },
+  {
+    "key": "@患者_性別",
+    "formid": "jp3"
+  }
+]
